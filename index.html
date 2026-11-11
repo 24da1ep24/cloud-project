@@ -1,38 +1,478 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сайт Абдукадырова Далера</title>
-    <style>
-        body {
-            font-family: 'Times New Roman', Times, serif;
-            margin: 20px;
-        }
-        h1 {
-            background-color: #3b5998; 
-            color: white; 
-            display: inline-block;
-            padding: 10px 20px;
-            margin-bottom: 20px;
-        }
-        p {
-            background-color: #3b5998;
-            color: white;
-            display: inline-block;
-            padding: 5px 10px;
-            margin: 5px 0;
-            font-size: 18px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Мои задачи — Далер</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      margin: 0;
+      padding: 30px 15px;
+      color: #1e293b;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      color: #2563eb;
+      margin-top: 0;
+    }
+
+    h2 {
+      margin-top: 25px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 7px 0;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    button {
+      padding: 11px 15px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+      margin: 5px 3px 5px 0;
+      font-size: 14px;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    button:disabled {
+      background: #94a3b8;
+      cursor: default;
+    }
+
+    .secondary {
+      background: #64748b;
+    }
+
+    .done {
+      background: #16a34a;
+    }
+
+    .delete {
+      background: #dc2626;
+    }
+
+    .task-input {
+      display: flex;
+      gap: 8px;
+    }
+
+    .task-input input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-input button {
+      margin-top: 7px;
+      white-space: nowrap;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px;
+      margin: 10px 0;
+      background: #f8fafc;
+      border-radius: 9px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .task-title {
+      flex: 1;
+      overflow-wrap: anywhere;
+    }
+
+    .completed {
+      text-decoration: line-through;
+      color: #94a3b8;
+    }
+
+    .task-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    #message {
+      padding: 10px;
+      border-radius: 8px;
+      margin: 12px 0;
+      display: none;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    #app {
+      display: none;
+    }
+
+    .profile {
+      color: #64748b;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .empty {
+      color: #94a3b8;
+      text-align: center;
+      padding: 20px;
+    }
+
+    @media (max-width: 450px) {
+      .container {
+        padding: 20px;
+      }
+
+      li {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .task-buttons {
+        justify-content: flex-start;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-    <h1>Сайт Абдукадырова Далера</h1>
-    <br>
-    <p>Это моя первая страница в интернете.</p>
-    <br>
-    <p>Она лежит в облаке GitHub и открывается с любого телефона.</p>
+<div class="container">
+
+  <h1>Мои задачи</h1>
+  <p>Сайт Абдукадырова Далера</p>
+  <p>Управляй своими задачами онлайн!</p>
+
+  <div id="auth">
+    <h2>Вход в аккаунт</h2>
+
+    <input id="email" type="email"
+      placeholder="Электронная почта">
+
+    <input id="password" type="password"
+      placeholder="Пароль (минимум 6 символов)">
+
+    <button onclick="signUp()">Регистрация</button>
+    <button onclick="signIn()">Войти</button>
+  </div>
+
+  <div id="app">
+
+    <p class="profile">
+      Вы вошли как: <span id="who"></span>
+    </p>
+
+    <button class="secondary" onclick="signOut()">
+      Выйти
+    </button>
+
+    <h2>Мои задачи</h2>
+
+    <div class="task-input">
+      <input id="task" type="text"
+        placeholder="Введите новую задачу">
+
+      <button onclick="addTask()">Добавить</button>
+    </div>
+
+    <ul id="list"></ul>
+
+    <p id="counter"></p>
+
+  </div>
+
+  <div id="message"></div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  // Подключение к твоему Supabase
+  const SUPABASE_URL =
+    "https://ybvrtxshvlkogxnhvlhd.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_sOGKla2UlCvhhC_oeLYYWw_4CFgg7GU";
+
+  const db = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  // Вывод сообщений
+  function showMessage(text) {
+    const message = document.getElementById("message");
+    message.textContent = text;
+    message.style.display = "block";
+  }
+
+  // Регистрация
+  async function signUp() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (!email || password.length < 6) {
+      showMessage("Введите почту и пароль от 6 символов.");
+      return;
+    }
+
+    const { data, error } = await db.auth.signUp({
+      email,
+      password
+    });
+
+    if (error) {
+      showMessage("Ошибка регистрации: " + error.message);
+      return;
+    }
+
+    if (data.session) {
+      showApp(data.user);
+    } else {
+      showMessage(
+        "Регистрация успешна! Проверьте почту и подтвердите аккаунт, затем войдите."
+      );
+    }
+  }
+
+  // Вход
+  async function signIn() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    const { data, error } = await db.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      showMessage("Ошибка входа: " + error.message);
+      return;
+    }
+
+    showApp(data.user);
+  }
+
+  // Выход
+  async function signOut() {
+    const { error } = await db.auth.signOut();
+
+    if (error) {
+      showMessage(error.message);
+      return;
+    }
+
+    document.getElementById("app").style.display = "none";
+    document.getElementById("auth").style.display = "block";
+    document.getElementById("list").innerHTML = "";
+    showMessage("Вы вышли из аккаунта.");
+  }
+
+  // Показ приложения
+  function showApp(user) {
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    document.getElementById("who").textContent = user.email;
+
+    document.getElementById("message").style.display = "none";
+
+    loadTasks();
+  }
+
+  // Загрузка задач
+  async function loadTasks() {
+    const { data, error } = await db
+      .from("tasks")
+      .select("*")
+      .order("id");
+
+    if (error) {
+      showMessage("Ошибка загрузки: " + error.message);
+      return;
+    }
+
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+
+    if (data.length === 0) {
+      list.innerHTML =
+        '<li class="empty">Пока нет задач. Добавьте первую!</li>';
+    }
+
+    let completed = 0;
+
+    for (const t of data) {
+      const li = document.createElement("li");
+
+      const title = document.createElement("span");
+      title.className = "task-title";
+      title.textContent = t.title;
+
+      if (t.done) {
+        title.classList.add("completed");
+        completed++;
+      }
+
+      li.appendChild(title);
+
+      const buttons = document.createElement("div");
+      buttons.className = "task-buttons";
+
+      const doneBtn = document.createElement("button");
+      doneBtn.className = "done";
+      doneBtn.textContent = t.done ? "Готово" : "Сделано";
+      doneBtn.disabled = t.done;
+      doneBtn.onclick = () => completeTask(t.id);
+
+      buttons.appendChild(doneBtn);
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "delete";
+      deleteBtn.textContent = "Удалить";
+      deleteBtn.onclick = () => deleteTask(t.id);
+
+      buttons.appendChild(deleteBtn);
+
+      li.appendChild(buttons);
+      list.appendChild(li);
+    }
+
+    document.getElementById("counter").textContent =
+      "Всего задач: " + data.length +
+      " | Выполнено: " + completed;
+  }
+
+  // Добавление задачи
+  async function addTask() {
+    const input = document.getElementById("task");
+    const title = input.value.trim();
+
+    if (!title) {
+      showMessage("Введите название задачи.");
+      return;
+    }
+
+    const { data: { user }, error: userError } =
+      await db.auth.getUser();
+
+    if (userError || !user) {
+      showMessage("Необходимо войти в аккаунт.");
+      return;
+    }
+
+    const { error } = await db.from("tasks").insert({
+      title: title,
+      done: false,
+      user_id: user.id
+    });
+
+    if (error) {
+      showMessage("Ошибка добавления: " + error.message);
+      return;
+    }
+
+    input.value = "";
+    document.getElementById("message").style.display = "none";
+
+    await loadTasks();
+  }
+
+  // Отметка задачи как выполненной
+  async function completeTask(id) {
+    const { error } = await db
+      .from("tasks")
+      .update({ done: true })
+      .eq("id", id);
+
+    if (error) {
+      showMessage("Ошибка изменения: " + error.message);
+      return;
+    }
+
+    await loadTasks();
+  }
+
+  // Удаление задачи
+  async function deleteTask(id) {
+    const { error } = await db
+      .from("tasks")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      showMessage("Ошибка удаления: " + error.message);
+      return;
+    }
+
+    await loadTasks();
+  }
+
+  // Проверка сохранённой авторизации
+  async function init() {
+    const { data, error } = await db.auth.getSession();
+
+    if (error) {
+      showMessage(error.message);
+      return;
+    }
+
+    if (data.session) {
+      showApp(data.session.user);
+    }
+  }
+
+  // Проверяем вход при открытии страницы
+  init();
+
+  // Отслеживаем изменения авторизации
+  db.auth.onAuthStateChange((event, session) => {
+    if (event === "SIGNED_IN" && session) {
+      showApp(session.user);
+    }
+
+    if (event === "SIGNED_OUT") {
+      document.getElementById("app").style.display = "none";
+      document.getElementById("auth").style.display = "block";
+    }
+  });
+
+  // Добавление задачи по Enter
+  document.getElementById("task").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      addTask();
+    }
+  });
+
+</script>
 
 </body>
 </html>
