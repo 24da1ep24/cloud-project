@@ -2,476 +2,482 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Мои задачи — Далер</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мои задачи</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    body {
-      font-family: Arial, sans-serif;
-      background: #f1f5f9;
-      margin: 0;
-      padding: 30px 15px;
-      color: #1e293b;
-    }
+<style>
+* {
+    box-sizing: border-box;
+}
 
+body {
+    margin: 0;
+    padding: 35px 20px;
+    background: #f4f6fa;
+    color: #172033;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 750px;
+    margin: 0 auto;
+    background: white;
+    padding: 28px;
+    border-radius: 16px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.06);
+}
+
+.car-photo {
+    width: 180px;
+    height: 150px;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 50%;
+    display: block;
+    margin-bottom: 22px;
+}
+
+h1 {
+    font-size: 34px;
+    margin: 10px 0;
+}
+
+.subtitle {
+    color: #64748b;
+    margin-bottom: 28px;
+}
+
+input {
+    padding: 13px;
+    font-size: 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    margin: 5px 3px 8px 0;
+    max-width: 100%;
+}
+
+button {
+    padding: 11px 16px;
+    font-size: 15px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    margin: 4px 3px 4px 0;
+    background: #2563eb;
+    color: white;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+button:disabled {
+    background: #94a3b8;
+    cursor: default;
+}
+
+.auth-box {
+    margin-top: 20px;
+}
+
+#app {
+    display: none;
+}
+
+.top-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.task-form {
+    display: flex;
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.task-form input {
+    flex: 1;
+    min-width: 0;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 13px;
+    margin-bottom: 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.task-title {
+    overflow-wrap: anywhere;
+}
+
+.completed {
+    text-decoration: line-through;
+    color: #94a3b8;
+}
+
+.delete-btn {
+    background: #ef4444;
+}
+
+.delete-btn:hover {
+    background: #dc2626;
+}
+
+.message {
+    margin-top: 12px;
+    color: #dc2626;
+    font-size: 14px;
+}
+
+.counter {
+    margin-top: 18px;
+    color: #475569;
+    font-weight: bold;
+}
+
+.logout {
+    background: #64748b;
+}
+
+@media (max-width: 550px) {
     .container {
-      max-width: 600px;
-      margin: 30px auto;
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        padding: 20px;
     }
 
     h1 {
-      color: #2563eb;
-      margin-top: 0;
+        font-size: 28px;
     }
 
-    h2 {
-      margin-top: 25px;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 7px 0;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      font-size: 15px;
-    }
-
-    button {
-      padding: 11px 15px;
-      border: none;
-      border-radius: 8px;
-      background: #2563eb;
-      color: white;
-      cursor: pointer;
-      margin: 5px 3px 5px 0;
-      font-size: 14px;
-    }
-
-    button:hover {
-      opacity: 0.85;
-    }
-
-    button:disabled {
-      background: #94a3b8;
-      cursor: default;
-    }
-
-    .secondary {
-      background: #64748b;
-    }
-
-    .done {
-      background: #16a34a;
-    }
-
-    .delete {
-      background: #dc2626;
-    }
-
-    .task-input {
-      display: flex;
-      gap: 8px;
-    }
-
-    .task-input input {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .task-input button {
-      margin-top: 7px;
-      white-space: nowrap;
+    .task-form {
+        flex-direction: column;
     }
 
     li {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 12px;
-      margin: 10px 0;
-      background: #f8fafc;
-      border-radius: 9px;
-      border: 1px solid #e2e8f0;
-    }
-
-    .task-title {
-      flex: 1;
-      overflow-wrap: anywhere;
-    }
-
-    .completed {
-      text-decoration: line-through;
-      color: #94a3b8;
-    }
-
-    .task-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    #message {
-      padding: 10px;
-      border-radius: 8px;
-      margin: 12px 0;
-      display: none;
-      background: #eff6ff;
-      color: #1d4ed8;
-    }
-
-    #app {
-      display: none;
-    }
-
-    .profile {
-      color: #64748b;
-      font-size: 14px;
-      overflow-wrap: anywhere;
-    }
-
-    .empty {
-      color: #94a3b8;
-      text-align: center;
-      padding: 20px;
-    }
-
-    @media (max-width: 450px) {
-      .container {
-        padding: 20px;
-      }
-
-      li {
         align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .task-buttons {
-        justify-content: flex-start;
-      }
+        flex-wrap: wrap;
     }
-  </style>
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
 
-  <h1>Мои задачи</h1>
-  <p>Сайт Абдукадырова Далера</p>
-  <p>Управляй своими задачами онлайн!</p>
+    <img class="car-photo"
+         src="car.jpg"
+         alt="Mercedes CLS 63">
 
-  <div id="auth">
-    <h2>Вход в аккаунт</h2>
-
-    <input id="email" type="email"
-      placeholder="Электронная почта">
-
-    <input id="password" type="password"
-      placeholder="Пароль (минимум 6 символов)">
-
-    <button onclick="signUp()">Регистрация</button>
-    <button onclick="signIn()">Войти</button>
-  </div>
-
-  <div id="app">
-
-    <p class="profile">
-      Вы вошли как: <span id="who"></span>
+    <h1>Мои задачи</h1>
+    <p class="subtitle">
+        Сайт Абдукадырова Далера<br>
+        Управляй своими задачами онлайн!
     </p>
 
-    <button class="secondary" onclick="signOut()">
-      Выйти
-    </button>
+    <div id="auth" class="auth-box">
+        <h2>Вход в аккаунт</h2>
 
-    <h2>Мои задачи</h2>
+        <input
+            type="email"
+            id="email"
+            placeholder="Почта"
+        >
 
-    <div class="task-input">
-      <input id="task" type="text"
-        placeholder="Введите новую задачу">
+        <input
+            type="password"
+            id="password"
+            placeholder="Пароль (от 6 символов)"
+        >
 
-      <button onclick="addTask()">Добавить</button>
+        <br>
+
+        <button onclick="register()">Регистрация</button>
+        <button onclick="login()">Войти</button>
+
+        <div id="authMessage" class="message"></div>
     </div>
 
-    <ul id="list"></ul>
+    <div id="app">
 
-    <p id="counter"></p>
+        <div class="top-line">
+            <span id="userEmail"></span>
+            <button class="logout" onclick="logout()">Выйти</button>
+        </div>
 
-  </div>
+        <h2>Мои задачи</h2>
 
-  <div id="message"></div>
+        <div class="task-form">
+            <input
+                type="text"
+                id="taskInput"
+                placeholder="Введите новую задачу"
+            >
+            <button onclick="addTask()">Добавить</button>
+        </div>
 
+        <ul id="taskList"></ul>
+
+        <div id="counter" class="counter">
+            Всего задач: 0 | Выполнено: 0
+        </div>
+
+        <div id="taskMessage" class="message"></div>
+
+    </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
-  // Подключение к твоему Supabase
-  const SUPABASE_URL =
+const SUPABASE_URL =
     "https://ybvrtxshvlkogxnhvlhd.supabase.co";
 
-  const SUPABASE_KEY =
+const SUPABASE_KEY =
     "sb_publishable_sOGKla2UlCvhhC_oeLYYWw_4CFgg7GU";
 
-  const db = supabase.createClient(
+const db = supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
-  );
+);
 
-  // Вывод сообщений
-  function showMessage(text) {
-    const message = document.getElementById("message");
-    message.textContent = text;
-    message.style.display = "block";
-  }
+let currentUser = null;
 
-  // Регистрация
-  async function signUp() {
+function showMessage(id, message) {
+    document.getElementById(id).textContent = message;
+}
+
+function updateScreen() {
+    document.getElementById("auth").style.display =
+        currentUser ? "none" : "block";
+
+    document.getElementById("app").style.display =
+        currentUser ? "block" : "none";
+
+    if (currentUser) {
+        document.getElementById("userEmail").textContent =
+            "Вы вошли как: " + currentUser.email;
+
+        loadTasks();
+    }
+}
+
+async function register() {
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
-    if (!email || password.length < 6) {
-      showMessage("Введите почту и пароль от 6 символов.");
-      return;
+    if (!email || !password) {
+        showMessage("authMessage", "Заполните почту и пароль");
+        return;
     }
 
     const { data, error } = await db.auth.signUp({
-      email,
-      password
+        email: email,
+        password: password,
+        options: {
+            emailRedirectTo: window.location.origin +
+                window.location.pathname
+        }
     });
 
     if (error) {
-      showMessage("Ошибка регистрации: " + error.message);
-      return;
+        showMessage("authMessage", error.message);
+        return;
     }
 
-    if (data.session) {
-      showApp(data.user);
+    if (!data.session) {
+        showMessage(
+            "authMessage",
+            "Регистрация успешна! Проверьте почту и подтвердите аккаунт."
+        );
     } else {
-      showMessage(
-        "Регистрация успешна! Проверьте почту и подтвердите аккаунт, затем войдите."
-      );
+        showMessage("authMessage", "Регистрация успешна!");
     }
-  }
+}
 
-  // Вход
-  async function signIn() {
+async function login() {
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
-    const { data, error } = await db.auth.signInWithPassword({
-      email,
-      password
+    if (!email || !password) {
+        showMessage("authMessage", "Заполните почту и пароль");
+        return;
+    }
+
+    const { error } = await db.auth.signInWithPassword({
+        email: email,
+        password: password
     });
 
     if (error) {
-      showMessage("Ошибка входа: " + error.message);
-      return;
+        showMessage("authMessage", error.message);
     }
+}
 
-    showApp(data.user);
-  }
-
-  // Выход
-  async function signOut() {
+async function logout() {
     const { error } = await db.auth.signOut();
 
     if (error) {
-      showMessage(error.message);
-      return;
+        showMessage("taskMessage", error.message);
     }
+}
 
-    document.getElementById("app").style.display = "none";
-    document.getElementById("auth").style.display = "block";
-    document.getElementById("list").innerHTML = "";
-    showMessage("Вы вышли из аккаунта.");
-  }
+async function loadTasks() {
+    if (!currentUser) return;
 
-  // Показ приложения
-  function showApp(user) {
-    document.getElementById("auth").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    document.getElementById("who").textContent = user.email;
-
-    document.getElementById("message").style.display = "none";
-
-    loadTasks();
-  }
-
-  // Загрузка задач
-  async function loadTasks() {
     const { data, error } = await db
-      .from("tasks")
-      .select("*")
-      .order("id");
+        .from("tasks")
+        .select("*")
+        .eq("user_id", currentUser.id)
+        .order("created_at", { ascending: false });
 
     if (error) {
-      showMessage("Ошибка загрузки: " + error.message);
-      return;
+        showMessage("taskMessage", "Ошибка загрузки: " + error.message);
+        return;
     }
 
-    const list = document.getElementById("list");
-    list.innerHTML = "";
-
-    if (data.length === 0) {
-      list.innerHTML =
-        '<li class="empty">Пока нет задач. Добавьте первую!</li>';
-    }
+    const list = document.getElementById("taskList");
+    list.replaceChildren();
 
     let completed = 0;
 
-    for (const t of data) {
-      const li = document.createElement("li");
+    data.forEach(task => {
+        if (task.done) completed++;
 
-      const title = document.createElement("span");
-      title.className = "task-title";
-      title.textContent = t.title;
+        const li = document.createElement("li");
 
-      if (t.done) {
-        title.classList.add("completed");
-        completed++;
-      }
+        const title = document.createElement("span");
+        title.className = "task-title";
+        title.textContent = task.title;
 
-      li.appendChild(title);
+        if (task.done) {
+            title.classList.add("completed");
+        }
 
-      const buttons = document.createElement("div");
-      buttons.className = "task-buttons";
+        const buttons = document.createElement("div");
 
-      const doneBtn = document.createElement("button");
-      doneBtn.className = "done";
-      doneBtn.textContent = t.done ? "Готово" : "Сделано";
-      doneBtn.disabled = t.done;
-      doneBtn.onclick = () => completeTask(t.id);
+        const doneBtn = document.createElement("button");
+        doneBtn.textContent = task.done ? "Готово" : "Сделано";
+        doneBtn.disabled = task.done;
+        doneBtn.onclick = () => completeTask(task.id);
 
-      buttons.appendChild(doneBtn);
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Удалить";
+        deleteBtn.className = "delete-btn";
+        deleteBtn.onclick = () => deleteTask(task.id);
 
-      const deleteBtn = document.createElement("button");
-      deleteBtn.className = "delete";
-      deleteBtn.textContent = "Удалить";
-      deleteBtn.onclick = () => deleteTask(t.id);
-
-      buttons.appendChild(deleteBtn);
-
-      li.appendChild(buttons);
-      list.appendChild(li);
-    }
+        buttons.append(doneBtn, deleteBtn);
+        li.append(title, buttons);
+        list.appendChild(li);
+    });
 
     document.getElementById("counter").textContent =
-      "Всего задач: " + data.length +
-      " | Выполнено: " + completed;
-  }
+        "Всего задач: " + data.length +
+        " | Выполнено: " + completed;
+}
 
-  // Добавление задачи
-  async function addTask() {
-    const input = document.getElementById("task");
+async function addTask() {
+    if (!currentUser) return;
+
+    const input = document.getElementById("taskInput");
     const title = input.value.trim();
 
     if (!title) {
-      showMessage("Введите название задачи.");
-      return;
+        showMessage("taskMessage", "Введите название задачи");
+        return;
     }
 
-    const { data: { user }, error: userError } =
-      await db.auth.getUser();
-
-    if (userError || !user) {
-      showMessage("Необходимо войти в аккаунт.");
-      return;
-    }
-
-    const { error } = await db.from("tasks").insert({
-      title: title,
-      done: false,
-      user_id: user.id
-    });
+    const { error } = await db
+        .from("tasks")
+        .insert({
+            title: title,
+            done: false,
+            user_id: currentUser.id
+        });
 
     if (error) {
-      showMessage("Ошибка добавления: " + error.message);
-      return;
+        showMessage("taskMessage", "Ошибка добавления: " + error.message);
+        return;
     }
 
     input.value = "";
-    document.getElementById("message").style.display = "none";
-
+    showMessage("taskMessage", "");
     await loadTasks();
-  }
+}
 
-  // Отметка задачи как выполненной
-  async function completeTask(id) {
+async function completeTask(id) {
     const { error } = await db
-      .from("tasks")
-      .update({ done: true })
-      .eq("id", id);
+        .from("tasks")
+        .update({ done: true })
+        .eq("id", id)
+        .eq("user_id", currentUser.id);
 
     if (error) {
-      showMessage("Ошибка изменения: " + error.message);
-      return;
+        showMessage("taskMessage", "Ошибка изменения: " + error.message);
+        return;
     }
 
+    showMessage("taskMessage", "");
     await loadTasks();
-  }
+}
 
-  // Удаление задачи
-  async function deleteTask(id) {
+async function deleteTask(id) {
     const { error } = await db
-      .from("tasks")
-      .delete()
-      .eq("id", id);
+        .from("tasks")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", currentUser.id);
 
     if (error) {
-      showMessage("Ошибка удаления: " + error.message);
-      return;
+        showMessage("taskMessage", "Ошибка удаления: " + error.message);
+        return;
     }
 
+    showMessage("taskMessage", "");
     await loadTasks();
-  }
+}
 
-  // Проверка сохранённой авторизации
-  async function init() {
+document.getElementById("taskInput").addEventListener(
+    "keydown",
+    function(event) {
+        if (event.key === "Enter") {
+            addTask();
+        }
+    }
+);
+
+db.auth.onAuthStateChange((event, session) => {
+    currentUser = session ? session.user : null;
+    updateScreen();
+});
+
+async function init() {
     const { data, error } = await db.auth.getSession();
 
     if (error) {
-      showMessage(error.message);
-      return;
+        showMessage("authMessage", error.message);
+        return;
     }
 
-    if (data.session) {
-      showApp(data.session.user);
-    }
-  }
+    currentUser = data.session ? data.session.user : null;
+    updateScreen();
+}
 
-  // Проверяем вход при открытии страницы
-  init();
-
-  // Отслеживаем изменения авторизации
-  db.auth.onAuthStateChange((event, session) => {
-    if (event === "SIGNED_IN" && session) {
-      showApp(session.user);
-    }
-
-    if (event === "SIGNED_OUT") {
-      document.getElementById("app").style.display = "none";
-      document.getElementById("auth").style.display = "block";
-    }
-  });
-
-  // Добавление задачи по Enter
-  document.getElementById("task").addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      addTask();
-    }
-  });
-
+init();
 </script>
 
 </body>
